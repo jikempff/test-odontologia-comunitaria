@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Odontología Comunitaria</title>
+<style>
+:root{--blue:#1a56db;--blue-dark:#1240b0;--blue-light:#e8f0fe;--green:#057a55;--green-light:#def7ec;--red:#e02424;--red-light:#fde8e8;--gray:#6b7280;--gray-light:#f3f4f6;--border:#e5e7eb;--text:#111827;--text-muted:#6b7280;--white:#fff;--shadow:0 1px 3px rgba(0,0,0,.1);--shadow-md:0 4px 6px rgba(0,0,0,.07);--radius:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f8;color:var(--text);min-height:100vh}
+.header{background:linear-gradient(135deg,#1a56db,#1240b0);color:#fff;padding:18px 24px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(26,86,219,.3)}
+.header-icon{font-size:26px}
+.header h1{font-size:1.2rem;font-weight:700}
+.header p{font-size:.78rem;opacity:.8;margin-top:2px}
+.screen{display:none;max-width:860px;margin:0 auto;padding:24px 16px}
+.screen.active{display:block}
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-md);padding:26px;margin-bottom:18px}
+.card h2{font-size:1.1rem;font-weight:700;margin-bottom:8px}
+.card p{color:var(--text-muted);font-size:.88rem;line-height:1.55}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+.info-box{background:var(--blue-light);border-radius:8px;padding:14px;text-align:center}
+.info-box .val{font-size:1.35rem;font-weight:700;color:var(--blue)}
+.info-box .lbl{font-size:.73rem;color:var(--text-muted);margin-top:2px}
+.topics-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.topics-header h3{font-size:.95rem;font-weight:600}
+.btn-link{background:none;border:none;color:var(--blue);font-size:.82rem;cursor:pointer;font-weight:500;text-decoration:underline;padding:0}
+.topics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:9px;margin-bottom:22px}
+.topic-item{display:flex;align-items:center;gap:10px;background:var(--gray-light);border:2px solid transparent;border-radius:8px;padding:11px 13px;cursor:pointer;transition:all .15s;user-select:none}
+.topic-item:hover,.topic-item.selected{border-color:var(--blue);background:var(--blue-light)}
+.topic-item input[type=checkbox]{width:17px;height:17px;accent-color:var(--blue);flex-shrink:0;cursor:pointer}
+.topic-item label{font-size:.82rem;font-weight:500;cursor:pointer;line-height:1.3}
+.topic-num{background:var(--blue);color:#fff;border-radius:4px;padding:2px 6px;font-size:.72rem;font-weight:700;flex-shrink:0}
+.topic-item.selected .topic-num{background:var(--blue-dark)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 26px;border-radius:8px;border:none;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .15s;text-decoration:none}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover:not(:disabled){background:var(--blue-dark);transform:translateY(-1px)}
+.btn-secondary{background:#fff;color:var(--text);border:2px solid var(--border)}
+.btn-secondary:hover{background:var(--gray-light)}
+.btn-success{background:var(--green);color:#fff}
+.btn-success:hover{background:#046244}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#c81e1e}
+.timer-bar{background:#fff;border-radius:var(--radius);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;box-shadow:var(--shadow);position:sticky;top:0;z-index:100}
+.timer-display{font-size:1.4rem;font-weight:700;font-family:'Courier New',monospace}
+.timer-display.warning{color:#f05252;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.progress-info{font-size:.83rem;color:var(--text-muted);text-align:right}
+.progress-bar-wrap{background:var(--gray-light);border-radius:4px;height:5px;margin-top:5px}
+.progress-bar-fill{background:var(--blue);height:5px;border-radius:4px;transition:width .3s}
+.question-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-md);padding:26px;margin-bottom:14px}
+.question-meta{display:flex;gap:9px;margin-bottom:15px;flex-wrap:wrap}
+.badge{background:var(--blue-light);color:var(--blue);border-radius:20px;padding:4px 11px;font-size:.75rem;font-weight:600}
+.badge-gray{background:var(--gray-light);color:var(--gray)}
+.question-text{font-size:1rem;font-weight:500;line-height:1.6;margin-bottom:20px}
+.options-list{display:flex;flex-direction:column;gap:9px}
+.option-btn{display:flex;align-items:flex-start;gap:11px;padding:13px 15px;border:2px solid var(--border);border-radius:8px;background:#fff;cursor:pointer;text-align:left;font-size:.9rem;line-height:1.4;color:var(--text);transition:all .15s;width:100%}
+.option-btn:hover:not(:disabled){border-color:var(--blue);background:var(--blue-light)}
+.option-btn.selected{border-color:var(--blue);background:var(--blue-light)}
+.option-btn.correct{border-color:var(--green);background:var(--green-light)}
+.option-btn.incorrect{border-color:var(--red);background:var(--red-light)}
+.option-btn:disabled{cursor:default}
+.option-letter{width:25px;height:25px;border-radius:50%;background:var(--gray-light);color:var(--gray);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;flex-shrink:0;margin-top:1px}
+.option-btn.selected .option-letter{background:var(--blue);color:#fff}
+.option-btn.correct .option-letter{background:var(--green);color:#fff}
+.option-btn.incorrect .option-letter{background:var(--red);color:#fff}
+.question-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.question-dots{display:flex;gap:5px;flex-wrap:wrap;flex:1;justify-content:center}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .15s;border:none;padding:0}
+.dot.answered{background:var(--blue)}
+.dot.current{background:var(--blue-dark);transform:scale(1.5)}
+.dot.skipped{background:var(--gray-light)}
+.results-header{text-align:center;padding:30px 20px;background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-md);margin-bottom:18px}
+.score-circle{width:110px;height:110px;border-radius:50%;margin:0 auto 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;border:6px solid}
+.score-circle.pass{border-color:var(--green);color:var(--green);background:var(--green-light)}
+.score-circle.fail{border-color:var(--red);color:var(--red);background:var(--red-light)}
+.score-circle .pct{font-size:1.9rem}
+.score-circle .label{font-size:.7rem;margin-top:2px}
+.score-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+.stat-box{background:var(--gray-light);border-radius:8px;padding:12px;text-align:center}
+.stat-box .val{font-size:1.25rem;font-weight:700}
+.stat-box .val.green{color:var(--green)}
+.stat-box .val.red{color:var(--red)}
+.stat-box .val.blue{color:var(--blue)}
+.stat-box .lbl{font-size:.72rem;color:var(--text-muted);margin-top:3px}
+.review-title{font-size:1rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.review-item{background:#fff;border-radius:8px;padding:16px;margin-bottom:11px;box-shadow:var(--shadow);border-left:4px solid}
+.review-item.correct-q{border-color:var(--green)}
+.review-item.incorrect-q{border-color:var(--red)}
+.review-item.skipped-q{border-color:var(--gray)}
+.review-q{font-size:.88rem;font-weight:500;margin-bottom:9px}
+.review-answers{font-size:.82rem}
+.review-correct{color:var(--green);font-weight:600}
+.review-wrong{color:var(--red);font-weight:600}
+.review-skipped{color:var(--gray);font-style:italic}
+.action-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:var(--radius);padding:26px;max-width:420px;width:100%;box-shadow:0 20px 40px rgba(0,0,0,.2)}
+.modal h3{font-size:1.1rem;font-weight:700;margin-bottom:11px}
+.modal p{color:var(--text-muted);margin-bottom:18px;font-size:.88rem;line-height:1.5}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+@media(max-width:600px){.info-grid{grid-template-columns:repeat(2,1fr)}.score-stats{grid-template-columns:repeat(2,1fr)}.topics-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🦷</div>
+  <div>
+    <h1>Test Odontología Comunitaria</h1>
+    <p>COMU · Universidad · 16 Temas · 480 preguntas</p>
+  </div>
+</div>
+
+<!-- SCREEN: INICIO -->
+<div class="screen active" id="screen-inicio">
+  <div class="card">
+    <h2>📋 Configurar Test</h2>
+    <p>Selecciona los temas que deseas repasar. El test constará de <strong>40 preguntas aleatorias</strong> y tendrás <strong>1 hora</strong> para completarlo.</p>
+    <div class="info-grid">
+      <div class="info-box"><div class="val">40</div><div class="lbl">Preguntas por test</div></div>
+      <div class="info-box"><div class="val">60'</div><div class="lbl">Tiempo disponible</div></div>
+      <div class="info-box"><div class="val" id="sel-count">0</div><div class="lbl">Temas seleccionados</div></div>
+    </div>
+    <div class="topics-header">
+      <h3>Selecciona los temas a repasar:</h3>
+      <div style="display:flex;gap:10px">
+        <button class="btn-link" onclick="selectAll()">Todos</button>
+        <button class="btn-link" onclick="selectNone()">Ninguno</button>
+      </div>
+    </div>
+    <div class="topics-grid" id="topics-grid"></div>
+    <button class="btn btn-primary" id="btn-start" onclick="startQuiz()" disabled>
+      🚀 Comenzar Test
+    </button>
+  </div>
+</div>
+
+<!-- SCREEN: QUIZ -->
+<div class="screen" id="screen-quiz">
+  <div class="timer-bar">
+    <div>
+      <div>⏱ <span class="timer-display" id="timer-display">60:00</span></div>
+    </div>
+    <div>
+      <div class="progress-info" id="progress-info">Pregunta 1 de 40</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="question-card">
+    <div class="question-meta">
+      <span class="badge" id="q-badge">Tema 1</span>
+      <span class="badge badge-gray" id="q-num-badge">Pregunta 1/40</span>
+    </div>
+    <div class="question-text" id="question-text"></div>
+    <div class="options-list" id="options-list"></div>
+  </div>
+
+  <div class="question-nav">
+    <button class="btn btn-secondary" onclick="prevQuestion()">← Anterior</button>
+    <div class="question-dots" id="question-dots"></div>
+    <button class="btn btn-secondary" id="btn-next" onclick="nextQuestion()">Siguiente →</button>
+  </div>
+
+  <div style="text-align:center;margin-top:22px">
+    <button class="btn btn-danger" onclick="showFinishModal()">🏁 Finalizar Test</button>
+  </div>
+</div>
+
+<!-- SCREEN: RESULTADOS -->
+<div class="screen" id="screen-results">
+  <div class="results-header">
+    <div class="score-circle" id="score-circle">
+      <div class="pct" id="score-pct">0%</div>
+      <div class="label">Puntuación</div>
+    </div>
+    <h2 id="score-msg">Resultado del Test</h2>
+    <p id="score-submsg" style="color:var(--text-muted);margin-top:6px;font-size:.9rem"></p>
+    <div class="score-stats">
+      <div class="stat-box"><div class="val green" id="r-correct">0</div><div class="lbl">✅ Correctas</div></div>
+      <div class="stat-box"><div class="val red" id="r-incorrect">0</div><div class="lbl">❌ Incorrectas</div></div>
+      <div class="stat-box"><div class="val" id="r-skipped">0</div><div class="lbl">⏭ Sin responder</div></div>
+      <div class="stat-box"><div class="val blue" id="r-time">0:00</div><div class="lbl">⏱ Tiempo</div></div>
+    </div>
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="showScreen('screen-inicio')">🔄 Nuevo Test</button>
+      <button class="btn btn-secondary" onclick="toggleReview()">📖 Ver Revisión</button>
+    </div>
+  </div>
+
+  <div id="review-section" style="display:none">
+    <div class="review-title">📋 Revisión de respuestas</div>
+    <div id="review-list"></div>
+  </div>
+</div>
+
+<!-- MODAL: CONFIRMAR FIN -->
+<div class="modal-overlay" id="modal-finish">
+  <div class="modal">
+    <h3>⚠️ Finalizar test</h3>
+    <p id="modal-finish-msg">¿Estás seguro de que quieres finalizar el test? Aún tienes preguntas sin responder.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-finish')">Cancelar</button>
+      <button class="btn btn-danger" onclick="finishQuiz()">Finalizar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: TIEMPO AGOTADO -->
+<div class="modal-overlay" id="modal-timeout">
+  <div class="modal">
+    <h3>⏰ ¡Tiempo agotado!</h3>
+    <p>Se ha agotado el tiempo. El test se ha finalizado automáticamente.</p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="closeModal('modal-timeout');showResults()">Ver resultados</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let TOPICS = [];
+let selectedTopics = new Set();
+let quiz = [];
+let userAnswers = {};
+let currentQ = 0;
+let timerInterval = null;
+let secondsLeft = 3600;
+let startTime = 0;
+let quizFinished = false;
+
+// Load questions
+fetch('questions.json')
+  .then(r => r.json())
+  .then(data => {
+    TOPICS = data;
+    buildTopicsGrid();
+  })
+  .catch(e => {
+    document.getElementById('topics-grid').innerHTML = '<p style="color:red">Error cargando preguntas. Asegúrate de que el archivo questions.json está disponible.</p>';
+  });
+
+function buildTopicsGrid() {
+  const grid = document.getElementById('topics-grid');
+  grid.innerHTML = '';
+  TOPICS.forEach(t => {
+    const item = document.createElement('div');
+    item.className = 'topic-item';
+    item.id = `topic-item-${t.num}`;
+    item.innerHTML = `
+      <input type="checkbox" id="t${t.num}" onchange="toggleTopic(${t.num},this.checked)">
+      <span class="topic-num">T${t.num}</span>
+      <label for="t${t.num}">Tema ${t.num}: ${t.name.length > 45 ? t.name.slice(0,45)+'…' : t.name}</label>
+    `;
+    item.querySelector('label').title = t.name;
+    item.addEventListener('click', e => {
+      if(e.target.tagName !== 'INPUT') {
+        const cb = item.querySelector('input');
+        cb.checked = !cb.checked;
+        toggleTopic(t.num, cb.checked);
+      }
+    });
+    grid.appendChild(item);
+  });
+}
+
+function toggleTopic(num, checked) {
+  if(checked) selectedTopics.add(num);
+  else selectedTopics.delete(num);
+  document.getElementById(`topic-item-${num}`).classList.toggle('selected', checked);
+  document.getElementById('sel-count').textContent = selectedTopics.size;
+  document.getElementById('btn-start').disabled = selectedTopics.size === 0;
+}
+
+function selectAll() {
+  TOPICS.forEach(t => {
+    selectedTopics.add(t.num);
+    document.getElementById(`topic-item-${t.num}`).classList.add('selected');
+    document.getElementById(`t${t.num}`).checked = true;
+  });
+  document.getElementById('sel-count').textContent = selectedTopics.size;
+  document.getElementById('btn-start').disabled = false;
+}
+
+function selectNone() {
+  selectedTopics.clear();
+  TOPICS.forEach(t => {
+    document.getElementById(`topic-item-${t.num}`).classList.remove('selected');
+    document.getElementById(`t${t.num}`).checked = false;
+  });
+  document.getElementById('sel-count').textContent = 0;
+  document.getElementById('btn-start').disabled = true;
+}
+
+function shuffle(arr) {
+  for(let i = arr.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function startQuiz() {
+  // Build pool from selected topics
+  let pool = [];
+  TOPICS.forEach(t => {
+    if(selectedTopics.has(t.num)) {
+      t.questions.forEach((q,i) => pool.push({...q, topicNum: t.num, topicName: t.name}));
+    }
+  });
+  shuffle(pool);
+  quiz = pool.slice(0, Math.min(40, pool.length));
+  userAnswers = {};
+  currentQ = 0;
+  secondsLeft = 3600;
+  quizFinished = false;
+
+  showScreen('screen-quiz');
+  buildDots();
+  renderQuestion();
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    updateTimerDisplay();
+    if(secondsLeft <= 0) {
+      clearInterval(timerInterval);
+      document.getElementById('modal-timeout').classList.add('active');
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(secondsLeft / 60);
+  const s = secondsLeft % 60;
+  const display = document.getElementById('timer-display');
+  display.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  display.className = 'timer-display' + (secondsLeft < 300 ? ' warning' : '');
+}
+
+function buildDots() {
+  const dotsEl = document.getElementById('question-dots');
+  dotsEl.innerHTML = '';
+  quiz.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'dot';
+    dot.title = `Pregunta ${i+1}`;
+    dot.onclick = () => goToQuestion(i);
+    dotsEl.appendChild(dot);
+  });
+  updateDots();
+}
+
+function updateDots() {
+  const dots = document.querySelectorAll('.dot');
+  dots.forEach((dot, i) => {
+    dot.className = 'dot';
+    if(i === currentQ) dot.classList.add('current');
+    else if(userAnswers[i] !== undefined) dot.classList.add('answered');
+  });
+  // Progress
+  const answered = Object.keys(userAnswers).length;
+  document.getElementById('progress-info').textContent = `${answered} de ${quiz.length} respondidas`;
+  document.getElementById('progress-bar').style.width = `${(answered/quiz.length)*100}%`;
+}
+
+function renderQuestion() {
+  const q = quiz[currentQ];
+  document.getElementById('q-badge').textContent = `Tema ${q.topicNum}`;
+  document.getElementById('q-num-badge').textContent = `Pregunta ${currentQ+1}/${quiz.length}`;
+  document.getElementById('question-text').textContent = q.question;
+  document.getElementById('progress-info').textContent = `${Object.keys(userAnswers).length} de ${quiz.length} respondidas`;
+  document.getElementById('btn-next').textContent = currentQ < quiz.length-1 ? 'Siguiente →' : 'Finalizar →';
+
+  const opts = document.getElementById('options-list');
+  opts.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn' + (userAnswers[currentQ] === i ? ' selected' : '');
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    opts.appendChild(btn);
+  });
+  updateDots();
+}
+
+function selectAnswer(idx) {
+  userAnswers[currentQ] = idx;
+  renderQuestion();
+}
+
+function prevQuestion() {
+  if(currentQ > 0) { currentQ--; renderQuestion(); }
+}
+
+function nextQuestion() {
+  if(currentQ < quiz.length-1) { currentQ++; renderQuestion(); }
+  else showFinishModal();
+}
+
+function goToQuestion(i) {
+  currentQ = i;
+  renderQuestion();
+}
+
+function showFinishModal() {
+  const unanswered = quiz.length - Object.keys(userAnswers).length;
+  const msg = unanswered > 0
+    ? `Tienes ${unanswered} pregunta${unanswered!==1?'s':''} sin responder. ¿Seguro que quieres finalizar?`
+    : '¿Finalizar el test y ver los resultados?';
+  document.getElementById('modal-finish-msg').textContent = msg;
+  document.getElementById('modal-finish').classList.add('active');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function finishQuiz() {
+  clearInterval(timerInterval);
+  closeModal('modal-finish');
+  quizFinished = true;
+  showResults();
+}
+
+function showResults() {
+  let correct = 0, incorrect = 0, skipped = 0;
+  quiz.forEach((q, i) => {
+    const ans = userAnswers[i];
+    if(ans === undefined) skipped++;
+    else if(ans === q.correct) correct++;
+    else incorrect++;
+  });
+  const pct = Math.round((correct / quiz.length) * 100);
+  const timeUsed = 3600 - secondsLeft;
+  const tm = Math.floor(timeUsed/60);
+  const ts = timeUsed % 60;
+
+  const circle = document.getElementById('score-circle');
+  circle.className = 'score-circle ' + (pct >= 50 ? 'pass' : 'fail');
+  document.getElementById('score-pct').textContent = pct + '%';
+  document.getElementById('score-msg').textContent = pct >= 60 ? '🎉 ¡Muy bien!' : pct >= 50 ? '✅ Aprobado' : '❌ Suspenso';
+  document.getElementById('score-submsg').textContent = `${correct} correctas, ${incorrect} incorrectas, ${skipped} sin responder`;
+  document.getElementById('r-correct').textContent = correct;
+  document.getElementById('r-incorrect').textContent = incorrect;
+  document.getElementById('r-skipped').textContent = skipped;
+  document.getElementById('r-time').textContent = `${tm}:${ts.toString().padStart(2,'0')}`;
+
+  // Review list
+  const reviewList = document.getElementById('review-list');
+  reviewList.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  quiz.forEach((q, i) => {
+    const ans = userAnswers[i];
+    const isCorrect = ans === q.correct;
+    const isSkipped = ans === undefined;
+    const div = document.createElement('div');
+    div.className = 'review-item ' + (isSkipped ? 'skipped-q' : isCorrect ? 'correct-q' : 'incorrect-q');
+    let answerHtml = '';
+    if(isSkipped) {
+      answerHtml = `<span class="review-skipped">Sin responder · Correcta: ${letters[q.correct]}) ${q.options[q.correct]}</span>`;
+    } else if(isCorrect) {
+      answerHtml = `<span class="review-correct">✅ ${letters[ans]}) ${q.options[ans]}</span>`;
+    } else {
+      answerHtml = `<span class="review-wrong">❌ Tu respuesta: ${letters[ans]}) ${q.options[ans]}</span><br>
+                   <span class="review-correct">✅ Correcta: ${letters[q.correct]}) ${q.options[q.correct]}</span>`;
+    }
+    div.innerHTML = `
+      <div class="review-q"><strong>${i+1}.</strong> [T${q.topicNum}] ${q.question}</div>
+      <div class="review-answers">${answerHtml}</div>
+    `;
+    reviewList.appendChild(div);
+  });
+
+  showScreen('screen-results');
+}
+
+function toggleReview() {
+  const rev = document.getElementById('review-section');
+  rev.style.display = rev.style.display === 'none' ? 'block' : 'none';
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
